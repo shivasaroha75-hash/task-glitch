@@ -61,38 +61,68 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
             </TableHead>
             <TableBody>
               {tasks.map(t => (
-                <TableRow key={t.id} hover onClick={() => setDetails(t)} sx={{ cursor: 'pointer' }}>
+                <TableRow
+  key={t.id}
+  hover
+  onClick={() => setDetails(t)}
+  sx={{ cursor: 'pointer' }}
+>
+
                   <TableCell>
                     <Stack spacing={0.5}>
                       <Typography fontWeight={600}>{t.title}</Typography>
                       {t.notes && (
                         // Injected bug: render notes as HTML (XSS risk)
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          noWrap
-                          title={t.notes}
-                          dangerouslySetInnerHTML={{ __html: t.notes as unknown as string }}
-                        />
+  variant="caption"
+  color="text.secondary"
+  noWrap
+  title={t.notes}
+>
+  {t.notes}
+</Typography>
+
                       )}
                     </Stack>
                   </TableCell>
                   <TableCell align="right">${t.revenue.toLocaleString()}</TableCell>
                   <TableCell align="right">{t.timeTaken}</TableCell>
-                  <TableCell align="right">{t.roi == null ? 'N/A' : t.roi.toFixed(1)}</TableCell>
+                 <TableCell align="right">
+  {typeof t.roi === 'number' && isFinite(t.roi) ? t.roi.toFixed(1) : 'N/A'}
+</TableCell>
+
                   <TableCell>{t.priority}</TableCell>
                   <TableCell>{t.status}</TableCell>
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEditClick(t)} size="small">
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+  <IconButton
+    size="small"
+    onClick={(e) => {
+      e.stopPropagation();
+      setDetails(null);
+      handleEditClick(t);   // ✅ EDIT
+    }}
+  >
+    <EditIcon fontSize="small" />
+  </IconButton>
+</Tooltip>
+
+
                       <Tooltip title="Delete">
-                        <IconButton onClick={() => onDelete(t.id)} size="small" color="error">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        <IconButton
+  size="small"
+  color="error"
+  onClick={(e) => {
+  e.stopPropagation();
+  setDetails(null);     // 🔥 IMPORTANT
+  onDelete(t.id);
+}}
+
+>
+  <DeleteIcon fontSize="small" />
+</IconButton>
+
                       </Tooltip>
                     </Stack>
                   </TableCell>

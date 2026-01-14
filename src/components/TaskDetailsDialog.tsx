@@ -25,13 +25,21 @@ export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props
   if (!task) return null;
 
   const handleSave = () => {
-    onSave(task.id, {
-      revenue: typeof revenue === 'number' ? revenue : task.revenue,
-      timeTaken: typeof timeTaken === 'number' && timeTaken > 0 ? timeTaken : task.timeTaken,
-      notes: notes.trim() || undefined,
-    });
-    onClose();
-  };
+  const safeRevenue =
+    typeof revenue === 'number' && revenue >= 0 ? revenue : task.revenue;
+
+  const safeTimeTaken =
+    typeof timeTaken === 'number' && timeTaken > 0 ? timeTaken : task.timeTaken;
+
+  onSave(task.id, {
+    revenue: safeRevenue,
+    timeTaken: safeTimeTaken,
+    notes: notes.trim() || undefined,
+  });
+
+  onClose();
+};
+
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
